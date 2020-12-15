@@ -35,11 +35,11 @@ Password: vagrant
 ### Build the base image
 
 1. Open Command Prompt as Administrator
-2. Set the shell location to the *Active Directory Lab* directory
+2. Set the shell location to the *Packer* directory
 3. Run the base image build:
 
     ```
-    packer build ./Packer/server-2019.json
+    packer build ./server-2019.json
     ```
 
 The base image build can take a couple hours. First, it will download a Windows Server 2019 ISO (~5 GBs). Then it will create a VM, install Server 2019, install Windows Updates (~1 GB download), and then package the VM as a Vagrant box. The Windows Server 2019 ISO will be cached on computer so subsequent runs of the image build process will run much faster. 
