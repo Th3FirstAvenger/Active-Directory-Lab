@@ -1,0 +1,75 @@
+{
+  "variables": {
+    "iso_url": "https://software-download.microsoft.com/download/pr/17763.737.190906-2324.rs5_release_svc_refresh_SERVER_EVAL_x64FRE_en-us_1.iso",
+    "iso_checksum": "sha256:549bca46c055157291be6c22a3aaaed8330e78ef4382c99ee82c896426a1cee1",
+    "disk_size": "40960",
+    "autounattend": "./files/autounattend.xml"
+  },
+  "builders": [
+    {
+      "type": "virtualbox-iso",
+      "vm_name": "server-2019",
+      "communicator": "winrm",
+      "iso_url": "{{user `iso_url`}}",
+      "iso_checksum": "{{user `iso_checksum`}}",
+      "headless": false,
+      "boot_wait": "2m",
+      "winrm_username": "vagrant",
+      "winrm_password": "vagrant",
+      "winrm_timeout": "4h",
+      "shutdown_command": "a:/sysprep.bat",
+      "guest_os_type": "Windows2016_64",
+      "guest_additions_mode": "disable",
+      "disk_size": 61440,
+      "floppy_files": [
+        "{{user `autounattend`}}",
+        "./files/unattend.xml",
+        "./files/sysprep.bat",
+        "./files/disable-winrm.ps1",
+        "./files/enable-winrm.ps1"
+      ],
+      "vboxmanage": [
+        [
+          "modifyvm",
+          "{{.Name}}",
+          "--memory",
+          "2048"
+        ],
+        [
+          "modifyvm",
+          "{{.Name}}",
+          "--cpus",
+          "2"
+        ]
+      ]
+    }
+  ],
+  "provisioners": [
+    {
+      "type": "powershell",
+      "script": "./files/install-updates.ps1",
+      "elevated_user": "Administrator",
+      "elevated_password": "{{ build `Password`}}"
+    },
+    {
+      "type": "windows-restart"
+    },
+    {
+      "type": "powershell",
+      "script": "./files/install-updates.ps1",
+      "elevated_user": "Administrator",
+      "elevated_password": "{{ build `Password`}}"
+    },
+    {
+      "type": "windows-restart"
+    }
+  ],
+  "post-processors": [
+    {
+      "type": "vagrant",
+      "keep_input_artifact": false,
+      "output": "../Vagrant/server-2019.box",
+      "vagrantfile_template": "server-2019-vagrantfile.template"
+    }
+  ]
+}
